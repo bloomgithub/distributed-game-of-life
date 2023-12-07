@@ -39,10 +39,9 @@ type (
 	}
 
 	World struct {
-		Field   Field
-		Height  int
-		Width   int
-		Workers int
+		Field  Field
+		Height int
+		Width  int
 	}
 )
 
@@ -130,22 +129,20 @@ func (region *Region) update(ipAddress string, regionCh chan<- [][]Cell) {
 	request := WorkerProcessRequest{Region: *region}
 	response := new(WorkerProcessResponse)
 
-	fmt.Println("Region length", len(response.Region.Field))
-
 	client.Call(WorkerProcess, request, response)
 
 	regionCh <- response.Region.Field
 }
 
-func (world *World) region(w int) Region {
+func (world *World) region(w int, numWorkers int) Region {
 	field := Field{
 		Height: 0,
 		Width:  0,
 	}
-	regionHeight := world.Height / world.Workers
+	regionHeight := world.Height / numWorkers
 	start := w * regionHeight
 	end := (w + 1) * regionHeight
-	if w == world.Workers-1 {
+	if w == numWorkers-1 {
 		end = world.Height
 	}
 	regionHeight = end - start
@@ -172,14 +169,16 @@ func (world *World) region(w int) Region {
 func (world *World) update(workerAddrs []string) {
 	var newFieldData [][]Cell
 
-	regionChannel := make([]chan [][]Cell, world.Workers)
+	numWorkers := len(workerAddrs)
+
+	regionChannel := make([]chan [][]Cell, numWorkers)
 
 	var wg sync.WaitGroup
-	wg.Add(world.Workers)
+	wg.Add(numWorkers)
 
-	for workerID := 0; workerID < world.Workers; workerID++ {
+	for workerID := 0; workerID < numWorkers; workerID++ {
 		regionChannel[workerID] = make(chan [][]Cell)
-		region := world.region(workerID)
+		region := world.region(workerID, numWorkers)
 		go func(workerID int) {
 			defer func() {
 				close(regionChannel[workerID])
@@ -189,7 +188,7 @@ func (world *World) update(workerAddrs []string) {
 		}(workerID)
 	}
 
-	for w := 0; w < world.Workers; w++ {
+	for w := 0; w < numWorkers; w++ {
 		region := <-regionChannel[w]
 		newFieldData = append(newFieldData, region...)
 	}
@@ -314,7 +313,7 @@ func main() {
 		shutdown:  make(chan bool),
 		pause:     make(chan bool),
 		isPaused:  false,
-		addresses: []string{"18.234.31.207:8030"},
+		addresses: []string{"18.234.31.207:8080", "3.85.240.162:8080"},
 	}
 
 	rpc.Register(b)

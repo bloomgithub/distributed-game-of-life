@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"net"
 	"net/rpc"
 	"time"
@@ -101,8 +100,6 @@ func (region *Region) update() {
 func (w *WorkerService) Process(req WorkerProcessRequest, res *WorkerProcessResponse) (err error) {
 	region := req.Region
 
-	fmt.Println("Region length", len(region.Field))
-
 	region.update()
 	res.Region = region
 	return
@@ -115,7 +112,7 @@ func (w *WorkerService) Shutdown(req WorkerProcessRequest, res *WorkerProcessRes
 
 func main() {
 	// TODO: Error handling
-	pAddr := flag.String("port", "8030", "Port to listen on")
+	pAddr := flag.String("port", "8080", "Port to listen on")
 	flag.Parse()
 
 	w := &WorkerService{

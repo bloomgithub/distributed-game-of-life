@@ -38,10 +38,9 @@ type (
 	}
 
 	World struct {
-		Field   Field
-		Height  int
-		Width   int
-		Workers int
+		Field  Field
+		Height int
+		Width  int
 	}
 )
 
@@ -224,10 +223,9 @@ func distributor(p Params, c distributorChannels) {
 	field.cultivate(p.ImageHeight, p.ImageWidth)
 
 	world := World{
-		Field:   field,
-		Height:  p.ImageHeight,
-		Width:   p.ImageWidth,
-		Workers: 1,
+		Field:  field,
+		Height: p.ImageHeight,
+		Width:  p.ImageWidth,
 	}
 	world.populate(c)
 
