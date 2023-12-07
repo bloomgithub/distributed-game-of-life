@@ -211,8 +211,6 @@ func (world *World) save(turn int, c distributorChannels) {
 }
 
 func distributor(p Params, c distributorChannels) {
-	// Define command-line flags
-
 	filename := fmt.Sprintf("%vx%v", p.ImageWidth, p.ImageHeight)
 
 	c.ioCommand <- ioInput
@@ -239,7 +237,7 @@ func distributor(p Params, c distributorChannels) {
 		Stop:           make(chan bool),
 	}
 
-	client, err := rpc.Dial("tcp", "127.0.0.1:8030")
+	client, err := rpc.Dial("tcp", "3.85.240.162:8030")
 	if err != nil {
 		log.Fatal("dialing:", err)
 	}

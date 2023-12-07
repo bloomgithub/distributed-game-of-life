@@ -4,10 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"math/rand"
 	"net"
 	"net/rpc"
-	"strings"
 	"sync"
 	"time"
 
@@ -276,7 +274,7 @@ func (b *BrokerService) Quit(req BrokerQuitRequest, res *BrokerQuitResponse) (er
 }
 
 func (b *BrokerService) Shutdown(req BrokerShutdownRequest, res *BrokerShutdownResponse) (err error) {
-	ipAddresses := []string{"127.0.0.1:8080"}
+	ipAddresses := []string{"18.234.31.207:8030"}
 
 	for _, ipAddress := range ipAddresses {
 		client, err := rpc.Dial("tcp", ipAddress)
@@ -309,19 +307,12 @@ func main() {
 	// TODO: Error handling
 	pAddr := flag.String("port", "8030", "Port to listen on")
 	flag.Parse()
-	rand.Seed(time.Now().UnixNano())
-
-	var workerAddrs string
-	flag.StringVar(&workerAddrs, "worker-addrs", "127.0.0.1:8080", "Comma-separated list of IP addresses")
-
-	workerAddrsList := strings.Split(workerAddrs, ",")
 
 	b := &BrokerService{
-		quit:        make(chan bool),
-		shutdown:    make(chan bool),
-		pause:       make(chan bool),
-		isPaused:    false,
-		workerAddrs: workerAddrsList,
+		quit:     make(chan bool),
+		shutdown: make(chan bool),
+		pause:    make(chan bool),
+		isPaused: false,
 	}
 
 	rpc.Register(b)
