@@ -91,14 +91,13 @@ type (
 	}
 
 	BrokerService struct {
-		Turns       int
-		CellsCount  int
-		World       World
-		quit        chan bool
-		shutdown    chan bool
-		pause       chan bool
-		isPaused    bool
-		workerAddrs []string
+		Turns      int
+		CellsCount int
+		World      World
+		quit       chan bool
+		shutdown   chan bool
+		pause      chan bool
+		isPaused   bool
 	}
 )
 
@@ -237,8 +236,9 @@ func (b *BrokerService) Process(req BrokerProcessRequest, res *BrokerProcessResp
 			return nil
 		default:
 			if !b.isPaused {
+				ipAddresses := []string{"18.234.31.207:8030"}
 
-				world.update(b.workerAddrs)
+				world.update(ipAddresses)
 
 				b.Turns++
 				b.CellsCount = len(world.alive())
