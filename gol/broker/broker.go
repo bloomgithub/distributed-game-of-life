@@ -305,7 +305,7 @@ func (b *BrokerService) Pause(req BrokerPauseRequest, res *BrokerPauseResponse) 
 
 func main() {
 	pAddr := flag.String("port", "8030", "Port to listen on")
-	wAddrs := flag.String("worker-addresses", "127.0.0.1:8070,127.0.0.1:8080,127.0.0.1:8090,127.0.0.1:8100", "Worker addresses to connect to")
+	wAddrs := flag.String("worker-addresses", "127.0.0.1:8070,127.0.0.1:8080", "Worker addresses to connect to")
 
 	flag.Parse()
 

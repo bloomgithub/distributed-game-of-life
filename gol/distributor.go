@@ -170,12 +170,13 @@ func (reporter *Reporter) start(client *rpc.Client) {
 			client.Call(BrokerReport, request, response)
 			turns := response.Turns
 			cellsCount := response.CellsCount
-			log.Printf("Turns: %d, Alive Cells: %d\n", turns, cellsCount)
+			// log.Printf("Turns: %d, Alive Cells: %d\n", turns, cellsCount)
 			reporter.EventsCh <- AliveCellsCount{
 				CompletedTurns: turns,
 				CellsCount:     cellsCount,
 			}
 		case <-reporter.Stop:
+			// Stop signal received, exit the loop
 			return
 		}
 	}
@@ -242,17 +243,16 @@ func distributor(p Params, c distributorChannels) {
 
 	go reporter.start(client)
 
-	func() {
+	go func() {
 		for {
 			select {
-			case cmd := <-c.keyPresses:
-				switch cmd {
-				case 's':
+			case key := <-c.keyPresses:
+				if key == 's' {
 					saveRequest := BrokerSaveRequest{}
 					saveResponse := new(BrokerSaveResponse)
 					client.Call(BrokerReport, saveRequest, saveResponse)
 					saveResponse.World.save(saveResponse.Turns, c)
-				case 'q':
+				} else if key == 'q' {
 					quitRequest := BrokerQuitRequest{}
 					quitResponse := new(BrokerQuitResponse)
 					client.Call(BrokerQuit, quitRequest, quitResponse)
@@ -260,8 +260,9 @@ func distributor(p Params, c distributorChannels) {
 						CompletedTurns: quitResponse.Turns,
 						NewState:       Quitting,
 					}
+
 					return
-				case 'k':
+				} else if key == 'k' {
 					shutdownRequest := BrokerShutdownRequest{}
 					shutdownResponse := new(BrokerShutdownResponse)
 					client.Call(BrokerShutdown, shutdownRequest, shutdownResponse)
@@ -270,7 +271,7 @@ func distributor(p Params, c distributorChannels) {
 						NewState:       Quitting,
 					}
 					return
-				case 'p':
+				} else if key == 'p' {
 					pauseRequest := BrokerPauseRequest{}
 					pauseResponse := new(BrokerPauseResponse)
 					client.Call(BrokerPause, pauseRequest, pauseResponse)
@@ -285,10 +286,6 @@ func distributor(p Params, c distributorChannels) {
 							NewState:       Executing,
 						}
 					}
-				}
-
-				if cmd == 'q' || cmd == 'k' {
-					return
 				}
 			}
 		}
