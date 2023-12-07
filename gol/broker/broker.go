@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/rpc"
+	"strings"
 	"sync"
 	"time"
 
@@ -306,14 +307,18 @@ func (b *BrokerService) Pause(req BrokerPauseRequest, res *BrokerPauseResponse) 
 func main() {
 	// TODO: Error handling
 	pAddr := flag.String("port", "8030", "Port to listen on")
+	wAddrs := flag.String("worker-addresses", "127.0.0.1:8070,127.0.0.1:8080,127.0.0.1:8090,127.0.0.1:8100", "Worker addresses to connect to")
+
 	flag.Parse()
+
+	addressList := strings.Split(*wAddrs, ",")
 
 	b := &BrokerService{
 		quit:      make(chan bool),
 		shutdown:  make(chan bool),
 		pause:     make(chan bool),
 		isPaused:  false,
-		addresses: []string{"18.234.31.207:8080", "3.85.240.162:8080"},
+		addresses: addressList,
 	}
 
 	rpc.Register(b)
