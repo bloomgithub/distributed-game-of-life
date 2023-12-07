@@ -237,7 +237,9 @@ func distributor(p Params, c distributorChannels) {
 		Stop:           make(chan bool),
 	}
 
-	client, err := rpc.Dial("tcp", "3.85.240.162:8030")
+	brokerAddr := "127.0.0.1:8030"
+
+	client, err := rpc.Dial("tcp", brokerAddr)
 	if err != nil {
 		log.Fatal("dialing:", err)
 	}

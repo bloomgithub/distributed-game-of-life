@@ -98,6 +98,7 @@ type (
 		shutdown   chan bool
 		pause      chan bool
 		isPaused   bool
+		addresses  []string
 	}
 )
 
@@ -236,9 +237,7 @@ func (b *BrokerService) Process(req BrokerProcessRequest, res *BrokerProcessResp
 			return nil
 		default:
 			if !b.isPaused {
-				ipAddresses := []string{"18.234.31.207:8030"}
-
-				world.update(ipAddresses)
+				world.update(b.addresses)
 
 				b.Turns++
 				b.CellsCount = len(world.alive())
@@ -274,9 +273,7 @@ func (b *BrokerService) Quit(req BrokerQuitRequest, res *BrokerQuitResponse) (er
 }
 
 func (b *BrokerService) Shutdown(req BrokerShutdownRequest, res *BrokerShutdownResponse) (err error) {
-	ipAddresses := []string{"18.234.31.207:8030"}
-
-	for _, ipAddress := range ipAddresses {
+	for _, ipAddress := range b.addresses {
 		client, err := rpc.Dial("tcp", ipAddress)
 		if err != nil {
 			log.Fatal("dialing:", err)
@@ -309,10 +306,11 @@ func main() {
 	flag.Parse()
 
 	b := &BrokerService{
-		quit:     make(chan bool),
-		shutdown: make(chan bool),
-		pause:    make(chan bool),
-		isPaused: false,
+		quit:      make(chan bool),
+		shutdown:  make(chan bool),
+		pause:     make(chan bool),
+		isPaused:  false,
+		addresses: []string{"18.234.31.207:8030"},
 	}
 
 	rpc.Register(b)
