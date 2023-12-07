@@ -313,7 +313,7 @@ func main() {
 		shutdown:  make(chan bool),
 		pause:     make(chan bool),
 		isPaused:  false,
-		addresses: []string{"18.234.31.207:8080", "3.85.240.162:8080"},
+		addresses: []string{"100.26.185.169:8030"},
 	}
 
 	rpc.Register(b)
