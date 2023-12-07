@@ -170,13 +170,12 @@ func (reporter *Reporter) start(client *rpc.Client) {
 			client.Call(BrokerReport, request, response)
 			turns := response.Turns
 			cellsCount := response.CellsCount
-			// log.Printf("Turns: %d, Alive Cells: %d\n", turns, cellsCount)
+			log.Printf("Turns: %d, Alive Cells: %d\n", turns, cellsCount)
 			reporter.EventsCh <- AliveCellsCount{
 				CompletedTurns: turns,
 				CellsCount:     cellsCount,
 			}
 		case <-reporter.Stop:
-			// Stop signal received, exit the loop
 			return
 		}
 	}
@@ -235,9 +234,7 @@ func distributor(p Params, c distributorChannels) {
 		Stop:           make(chan bool),
 	}
 
-	brokerAddr := "127.0.0.1:8030"
-
-	client, err := rpc.Dial("tcp", brokerAddr)
+	client, err := rpc.Dial("tcp", p.BrokerAddr)
 	if err != nil {
 		log.Fatal("dialing:", err)
 	}
@@ -245,16 +242,17 @@ func distributor(p Params, c distributorChannels) {
 
 	go reporter.start(client)
 
-	go func() {
+	func() {
 		for {
 			select {
-			case key := <-c.keyPresses:
-				if key == 's' {
+			case cmd := <-c.keyPresses:
+				switch cmd {
+				case 's':
 					saveRequest := BrokerSaveRequest{}
 					saveResponse := new(BrokerSaveResponse)
 					client.Call(BrokerReport, saveRequest, saveResponse)
 					saveResponse.World.save(saveResponse.Turns, c)
-				} else if key == 'q' {
+				case 'q':
 					quitRequest := BrokerQuitRequest{}
 					quitResponse := new(BrokerQuitResponse)
 					client.Call(BrokerQuit, quitRequest, quitResponse)
@@ -262,9 +260,8 @@ func distributor(p Params, c distributorChannels) {
 						CompletedTurns: quitResponse.Turns,
 						NewState:       Quitting,
 					}
-
 					return
-				} else if key == 'k' {
+				case 'k':
 					shutdownRequest := BrokerShutdownRequest{}
 					shutdownResponse := new(BrokerShutdownResponse)
 					client.Call(BrokerShutdown, shutdownRequest, shutdownResponse)
@@ -273,7 +270,7 @@ func distributor(p Params, c distributorChannels) {
 						NewState:       Quitting,
 					}
 					return
-				} else if key == 'p' {
+				case 'p':
 					pauseRequest := BrokerPauseRequest{}
 					pauseResponse := new(BrokerPauseResponse)
 					client.Call(BrokerPause, pauseRequest, pauseResponse)
@@ -288,6 +285,10 @@ func distributor(p Params, c distributorChannels) {
 							NewState:       Executing,
 						}
 					}
+				}
+
+				if cmd == 'q' || cmd == 'k' {
+					return
 				}
 			}
 		}

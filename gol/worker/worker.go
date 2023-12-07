@@ -111,7 +111,6 @@ func (w *WorkerService) Shutdown(req WorkerProcessRequest, res *WorkerProcessRes
 }
 
 func main() {
-	// TODO: Error handling
 	pAddr := flag.String("port", "8030", "Port to listen on")
 	flag.Parse()
 
@@ -124,9 +123,7 @@ func main() {
 	defer listener.Close()
 	go rpc.Accept(listener)
 
-	// Wait for shutdown
 	<-w.shutdown
 
-	// Shutdown logic here
 	listener.Close()
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net"
 	"net/rpc"
@@ -305,7 +304,6 @@ func (b *BrokerService) Pause(req BrokerPauseRequest, res *BrokerPauseResponse) 
 }
 
 func main() {
-	// TODO: Error handling
 	pAddr := flag.String("port", "8030", "Port to listen on")
 	wAddrs := flag.String("worker-addresses", "127.0.0.1:8070,127.0.0.1:8080,127.0.0.1:8090,127.0.0.1:8100", "Worker addresses to connect to")
 
@@ -331,10 +329,7 @@ func main() {
 
 	go rpc.Accept(listener)
 
-	// Wait for shutdown
 	<-b.shutdown
 
-	// Shutdown logic here
-	fmt.Println("Shutting down")
 	listener.Close()
 }
