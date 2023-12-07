@@ -129,6 +129,9 @@ func (region *Region) update(ipAddress string, regionCh chan<- [][]Cell) {
 
 	request := WorkerProcessRequest{Region: *region}
 	response := new(WorkerProcessResponse)
+
+	fmt.Println("Region length", len(response.Region.Field))
+
 	client.Call(WorkerProcess, request, response)
 
 	regionCh <- response.Region.Field
@@ -237,6 +240,7 @@ func (b *BrokerService) Process(req BrokerProcessRequest, res *BrokerProcessResp
 			return nil
 		default:
 			if !b.isPaused {
+
 				world.update(b.addresses)
 
 				b.Turns++
