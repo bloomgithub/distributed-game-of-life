@@ -43,7 +43,7 @@ func main() {
 		false,
 		"Disables the SDL window, so there is no visualisation during the tests.")
 
-	brokerAddr := flag.String("broker-address", "3.85.9.31:8030", "Broker address in the format 'host:port'")
+	brokerAddr := flag.String("broker-address", "127.0.0.1:8030", "Broker address in the format 'host:port'")
 
 	flag.Parse()
 
